@@ -3106,38 +3106,10 @@ async function signInWithEmail(){
     return;
   }
 
-  // Local auth path (no Firebase)
-  setTimeout(()=>{
-    let result;
-    if(_loginMode==='signup'){
-      result = _localCreateAccount(email, pass, name || email.split('@')[0]);
-    } else {
-      result = _localSignIn(email, pass);
-    }
-
-    showLoginLoading(false);
-    btn.disabled = false;
-
-    if(result.error){
-      showLoginError(result.error);
-      return;
-    }
-
-    // Success
-    currentUser = {uid:result.uid, email:result.email, displayName:result.displayName, photoURL:null};
-    _saveCurrentUser(currentUser);
-    loadProgressLocal();
-    loadUnlockedModules().then(()=>render());
-    renderUserPill(currentUser);
-    showCourse();
-    render();
-    showToast(
-      _loginMode==='signup'
-        ? `Welcome, ${currentUser.displayName}! 🎉 Let's get started.`
-        : `Welcome back, ${currentUser.displayName}! 👋`,
-      '#22C55E'
-    );
-  }, 400);
+  // Firebase not configured
+  showLoginError('Sign in failed. Please try Google sign-in or contact support.');
+  showLoginLoading(false);
+  btn.disabled = false;
 }
 
 function signOut(){
