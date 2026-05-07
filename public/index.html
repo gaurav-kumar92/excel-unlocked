@@ -2832,12 +2832,7 @@ function resetProgress(){
 // ═══════════════════════════════════
 //  THEME
 // ═══════════════════════════════════
-function toggleTheme(){
-  const n=document.body.classList.contains('light')?'dark':'light';
-  applyTheme(n);
-  try{localStorage.setItem('exlUnlocked_theme',n);}catch(e){}
-  render();
-}
+
 
 // ═══════════════════════════════════
 //  FIREBASE CONFIG
@@ -2900,31 +2895,7 @@ if(FIREBASE_READY){
   fallback();
 }
 
-function fallback(){
-  loadProgressLocal();
-  // No Firebase — show login screen with guest option visible
-  showLoginScreen();
-  // Add "Try as Guest" button if not already there
-  if(!document.getElementById('guest-btn')){
-    const guestBtn=document.createElement('button');
-    guestBtn.id='guest-btn';
-    guestBtn.textContent='▶ Try without an account';
-    guestBtn.style.cssText='width:100%;padding:11px;border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;background:transparent;color:rgba(255,255,255,0.5);margin-top:4px;font-family:inherit;transition:all 0.2s';
-    guestBtn.onmouseenter=()=>{guestBtn.style.background='rgba(255,255,255,0.06)';guestBtn.style.color='rgba(255,255,255,0.8)';};
-    guestBtn.onmouseleave=()=>{guestBtn.style.background='transparent';guestBtn.style.color='rgba(255,255,255,0.5)';};
-    guestBtn.onclick=()=>{
-      currentUser={uid:'guest-'+Date.now(), email:'guest@local', displayName:'Guest', photoURL:null};
-      loadProgressLocal();
-      renderUserPill(currentUser);
-      showCourse();
-      render();
-      showToast('Running as guest — progress saved locally 💾','#22C55E');
-    };
-    const card=document.getElementById('login-card');
-    if(card) card.appendChild(guestBtn);
-  }
-  console.warn('⚠️ Firebase not configured — login screen shown with guest option.');
-}
+// fallback defined below
 
 // ═══════════════════════════════════
 //  LOCAL AUTH — works without Firebase
