@@ -2717,41 +2717,6 @@ async function tryUnlock(){
   setUnlockLoading(true);
   await checkCoupon(raw);
   setUnlockLoading(false);
-  }
-  // Check Firestore coupons
-  setUnlockLoading(true);
-  await checkCoupon(raw);
-  setUnlockLoading(false);
-}
-
-async function claimFounding(){
-  if(!db||!currentUser){grantAccess('professional','👤 Professional (Founding)','#22C55E',36500);return;}
-  try{
-    const counterRef=db.collection('exlMeta').doc('foundingCounter');
-    const userRef=db.collection('exlUsers').doc(currentUser.uid);
-    await db.runTransaction(async tx=>{
-      const counter=await tx.get(counterRef);
-      const userDoc=await tx.get(userRef);
-      const count=counter.exists?(counter.data().count||0):0;
-      const limit=counter.exists&&counter.data().limit!=null?counter.data().limit:FOUNDING_LIMIT;
-      if(userDoc.exists&&userDoc.data().foundingMember) return;
-      if(count>=limit) throw new Error('limit|'+count+'|'+limit);
-      tx.set(counterRef,{count:count+1,limit},{merge:true});
-      tx.set(userRef,{foundingMember:true,foundingNumber:count+1,packages:{professional:'FOUNDING'}},{merge:true});
-    });
-    professionalUnlocked=true;
-    try{localStorage.setItem('exlUnlocked_professional','1');}catch(e){}
-    hideUnlockModal();
-    showToast('🎉 Founding Member — Free Professional Access!','#22C55E');
-    render();
-  }catch(e){
-    if(e.message&&e.message.startsWith('limit')){
-      const p=e.message.split('|');
-      showUnlockError('Founding spots are full ('+p[2]+'/'+p[2]+' claimed). Use a paid code.');
-    } else {
-      grantAccess('professional','👤 Professional (Founding)','#22C55E',36500);
-    }
-  }
 }
 
 async function checkCoupon(rawCode){
