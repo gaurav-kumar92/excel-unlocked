@@ -289,16 +289,8 @@ body.light .task-box { border:1px solid var(--border); }
     <button id="buy-btn" onclick="startPayment()" style="display:none;width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;color:#000;margin-bottom:14px;font-family:inherit;transition:all 0.2s">
       Pay ₹<span id="buy-btn-price"></span> — Unlock Now
     </button>
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px" id="unlock-divider-row">
-      <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
-      <span style="font-size:11px;color:rgba(255,255,255,0.25)">or have a code?</span>
-      <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
-    </div>
-    <p id="unlock-desc" style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:10px">Enter your access code or coupon code.</p>
-    <input id="unlock-input" type="text" placeholder="Enter access code" onkeydown="if(event.key==='Enter')tryUnlock()">
     <div id="unlock-error"></div>
-    <button id="unlock-submit" onclick="tryUnlock()">Redeem Code</button>
-    <br><button id="unlock-cancel" onclick="hideUnlockModal()">Cancel</button>
+    <br><button id="unlock-cancel" onclick="hideUnlockModal()" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;padding:6px;font-family:inherit">Cancel</button>
   </div>
 </div>
 
@@ -2513,11 +2505,9 @@ function showUnlockModal(modId,pkgKey){
   badge.style.color=cfg.color;
   badge.style.border='1px solid '+cfg.color+'44';
 
-  // Show price row and buy button if paid package
   const priceRow=document.getElementById('unlock-price-row');
   const buyBtn=document.getElementById('buy-btn');
   const buyBtnPrice=document.getElementById('buy-btn-price');
-  const divider=document.getElementById('unlock-divider-row');
 
   if(price>0){
     priceRow.style.display='block';
@@ -2525,35 +2515,26 @@ function showUnlockModal(modId,pkgKey){
     buyBtn.style.display='block';
     buyBtn.style.background=cfg.color;
     buyBtnPrice.textContent=price;
-    divider.style.display='flex';
-    document.getElementById('unlock-desc').style.display='block';
   } else {
     priceRow.style.display='none';
     buyBtn.style.display='none';
-    divider.style.display='none';
-    document.getElementById('unlock-desc').style.display='none';
   }
 
-  document.getElementById('unlock-submit').style.background=cfg.color;
-  document.getElementById('unlock-input').value='';
   document.getElementById('unlock-error').style.display='none';
-  setTimeout(()=>document.getElementById('unlock-input').focus(),100);
 }
 function hideUnlockModal(){document.getElementById('unlock-overlay').style.display='none';}
 
 function showUnlockError(msg){
   const el=document.getElementById('unlock-error');
+  if(!el) return;
   el.textContent='❌ '+msg;
   el.style.display='block';
-  document.getElementById('unlock-input').style.borderColor='#EF4444';
-  setTimeout(()=>{document.getElementById('unlock-input').style.borderColor='rgba(255,255,255,0.12)';},2000);
+  setTimeout(()=>{el.style.display='none';},5000);
 }
 
 function setUnlockLoading(on){
-  const btn=document.getElementById('unlock-submit');
-  btn.textContent=on?'Verifying…':'Redeem Code';
-  btn.disabled=on;
-  document.getElementById('unlock-input').disabled=on;
+  const btn=document.getElementById('buy-btn');
+  if(btn){ btn.disabled=on; btn.textContent=on?'Processing…':'Pay ₹'+(_pendingPkg?PKG_CONFIG[_pendingPkg].price:'')+' — Unlock Now'; }
 }
 
 // ═══════════════════════════════════
@@ -2712,11 +2693,8 @@ function grantAccess(pkg,label,color,days){
 }
 
 async function tryUnlock(){
-  const raw = document.getElementById('unlock-input').value.trim();
-  if(!raw){ showUnlockError('Please enter a coupon code.'); return; }
-  setUnlockLoading(true);
-  await checkCoupon(raw);
-  setUnlockLoading(false);
+  // Code input removed — payment only
+  startPayment();
 }
 
 async function checkCoupon(rawCode){
